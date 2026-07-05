@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WiFi Voucher • Philippines</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --primary: #0077be;
+      --primary-dark: #003b5e;
+      --accent: #e5f0fa;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(145deg, #0b1a2e 0%, #1c3a5a 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* PUBLIC PAGE */
+    .voucher-card {
+      max-width: 680px;
+      margin: 2rem auto;
+      background: white;
+      border-radius: 2.5rem;
+      box-shadow: 0 25px 60px -10px rgba(0,0,0,0.65);
+      padding: 2.2rem 1.8rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .voucher-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px;
+      background: linear-gradient(to right, var(--primary), #00aaff);
+    }
+
+    .brand-header { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+    .brand-wifi {
+      font-size: 2.35rem; font-weight: 800; letter-spacing: -0.03em;
+      background: var(--accent); padding: 0.15rem 1.1rem 0.15rem 1.3rem;
+      border-radius: 50px; display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .brand-wifi i { color: var(--primary); font-size: 2.1rem; }
+    .brand-voucher { font-weight: 700; background: #dbeafe; padding: 0.15rem 1.3rem; border-radius: 50px; }
+
+    .tagline {
+      font-size: 1.05rem; font-weight: 600; background: rgba(0,119,190,0.08);
+      padding: 0.5rem 1.3rem; border-radius: 50px; display: inline-flex; align-items: center; gap: 0.5rem;
+      margin-top: 0.8rem; border: 1px solid rgba(0,119,190,0.15);
+    }
+
+    .voucher-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 1.1rem;
+      margin: 2rem 0;
+    }
+
+    .voucher-item {
+      background: #4282d1; border-radius: 1.75rem; padding: 1.1rem 0.8rem;
+      text-align: center; transition: all 0.25s; border: 2px solid transparent;
+      cursor: pointer;
+    }
+    .voucher-item:hover { transform: translateY(-6px); background: #edf6ff; border-color: var(--primary); }
+
+    .price { font-size: 2.25rem; font-weight: 800; color: #e2effa; }
+    .price small { font-size: 1.1rem; font-weight: 600; }
+    .duration, .feature {
+      font-size: 0.95rem; font-weight: 700; background: rgba(255,255,255,0.9);
+      padding: 0.35rem 0.9rem; border-radius: 30px; margin: 0.5rem 0;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .feature { font-size: 0.78rem; background: white; border: 1px solid rgba(0,119,190,0.12); }
+
+    .cta-section {
+      background: linear-gradient(90deg, #e2effa, #f0f8ff);
+      border-radius: 3rem; padding: 1rem 1.8rem; display: flex; align-items: center;
+      justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;
+    }
+    .cta-button {
+      background: var(--primary-dark); color: white; border: none; padding: 0.85rem 2rem;
+      border-radius: 60px; font-weight: 700; font-size: 1.05rem; display: flex; align-items: center;
+      gap: 0.6rem; cursor: pointer; transition: all 0.3s;
+    }
+    .cta-button:hover { background: #00507a; transform: scale(1.05); }
+
+    /* VIDEO PLAYER */
+    .video-wrapper {
+      margin: 1.8rem 0 0.5rem;
+      border-radius: 1.5rem;
+      overflow: hidden;
+      background: #0b1a2e;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    .video-wrapper iframe {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border: none;
+    }
+    .video-placeholder {
+      background: #1c3a5a;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 0.5rem;
+      font-weight: 500;
+      padding: 1rem;
+      text-align: center;
+    }
+    .video-placeholder i {
+      font-size: 3rem;
+      opacity: 0.6;
+    }
+    .video-placeholder .sub-text {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .video-error {
+      background: #2d1b1b;
+      color: #ffb3b3;
+    }
+
+    /* ADMIN */
+    .modal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.75);
+      align-items: center; justify-content: center; z-index: 1000;
+    }
+    .modal-content {
+      background: white; padding: 2rem; border-radius: 1.5rem; width: 90%; max-width: 380px;
+      text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+    .modal input {
+      width: 100%; padding: 14px; margin: 1rem 0; border: 2px solid #ddd;
+      border-radius: 12px; font-size: 1.2rem; text-align: center; letter-spacing: 6px;
+    }
+
+    .admin-panel {
+      display: none; max-width: 1100px; margin: 1rem auto; padding: 1rem;
+    }
+    .admin-header {
+      display: flex; justify-content: space-between; align-items: center;
+      background: white; padding: 1rem 1.5rem; border-radius: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .tabs { display: flex; gap: 1rem; margin: 1.5rem 0; flex-wrap: wrap; }
+    .tab {
+      padding: 0.7rem 1.4rem; background: #f1f5f9; border-radius: 50px;
+      cursor: pointer; font-weight: 600;
+    }
+    .tab.active { background: var(--primary); color: white; }
+
+    .voucher-form, .admin-voucher-item {
+      background: white; padding: 1.5rem; border-radius: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08); margin-bottom: 1.5rem;
+    }
+    input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; }
+
+    .video-preview-container {
+      margin-top: 1rem;
+      background: #f8fafc;
+      border-radius: 1rem;
+      padding: 0.75rem;
+    }
+    .video-preview-container iframe {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 8px;
+      border: none;
+    }
+    .video-preview-container .empty-state {
+      color: #64748b;
+      text-align: center;
+      padding: 1.5rem;
+    }
+
+    .video-input-hint {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin: 0.5rem 0 0.25rem;
+    }
+    .video-input-hint code {
+      background: #e2e8f0;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+	
+	.popup{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.92);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;
+    overflow:hidden;
+}
+
+.popup img{
+    max-width:95%;
+    max-height:90%;
+    border-radius:12px;
+    animation:slideIn .3s ease;
+}
+
+.close{
+    position:absolute;
+    top:20px;
+    right:25px;
+    color:#fff;
+    font-size:40px;
+    cursor:pointer;
+    user-select:none;
+}
+
+.nav{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    color:#fff;
+    font-size:50px;
+    cursor:pointer;
+    padding:15px;
+    user-select:none;
+}
+
+.prev{
+    left:15px;
+}
+
+.next{
+    right:15px;
+}
+
+@keyframes slideIn{
+    from{
+        opacity:0;
+        transform:translateX(80px);
+    }
+    to{
+        opacity:1;
+        transform:translateX(0);
+    }
+}
+
+@media(max-width:768px){
+    .nav{
+        font-size:38px;
+    }
+
+    .close{
+        font-size:34px;
+    }
+}
+  </style>
+</head>
+<body>
+
+  <!-- PUBLIC PAGE -->
+  <div id="public-page">
+    <div class="voucher-card">
+      <div class="brand-header">
+        <span class="brand-wifi"><i class="fas fa-wifi"></i>WIFI</span>
+        <span class="brand-voucher">VOUCHER</span>
+      </div>
+      <div class="tagline"><i class="fas fa-globe"></i> STAY CONNECTED. ANYTIME, ANYWHERE!</div>
+
+      <!-- VIDEO PLAYER (public) -->
+      <div class="video-wrapper" id="public-video-wrapper">
+        <div class="video-placeholder" id="video-placeholder">
+          <i class="fas fa-video"></i>
+          <span>No promo video set</span>
+          <span class="sub-text">Add a YouTube URL in the admin panel</span>
+        </div>
+      </div>
+
+      <div class="voucher-grid" id="public-grid"></div>
+
+<div style="text-align:center; margin:1.5rem 0;">
+    <a href="#" id="promoBtn"
+        style="display:inline-block;background:#d9ecfa;padding:0.5rem 1.4rem;border-radius:50px;font-weight:700;color:#000;text-decoration:none;">
+        <i class="fas fa-link"></i> CONNECT MORE. WORRY LESS.
+    </a>
+</div>
+
+<!-- Popup -->
+<div id="imagePopup" class="popup">
+    <span class="close">&times;</span>
+
+    <span class="nav prev">&#10094;</span>
+
+    <img id="popupImage" src="images/promo1.jpg" alt="Promo">
+
+    <span class="nav next">&#10095;</span>
+</div>
+
+      <div class="cta-section">
+        <div style="font-weight:700; color:#003b5e;">GET YOUR VOUCHER NOW!</div>
+        <button class="cta-button" onclick="showAdminLogin()">
+          <i class="fas fa-user-shield"></i> ADMIN PANEL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN LOGIN -->
+  <div id="login-modal" class="modal">
+    <div class="modal-content">
+      <h2><i class="fas fa-lock"></i> Admin Login</h2>
+      <p>Enter PIN to continue</p>
+      <input type="password" id="pin-input" maxlength="6" placeholder="••••••">
+      <br><br>
+      <button onclick="verifyPin()" style="background:var(--primary-dark); color:white; border:none; padding:12px 32px; border-radius:50px;">Login</button>
+      <button onclick="hideLogin()" style="margin-left:10px; background:#95a5a6; color:white; border:none; padding:12px 24px; border-radius:50px;">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div id="admin-panel" class="admin-panel">
+    <div class="admin-header">
+      <h2><i class="fas fa-cogs"></i> Voucher CMS</h2>
+      <button onclick="logout()" style="background:#e74c3c; color:white; border:none; padding:10px 20px; border-radius:50px;">Logout</button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab(0)">Manage Vouchers</div>
+      <div class="tab" onclick="switchTab(1)">Promo Video</div>
+    </div>
+
+    <!-- Vouchers Tab -->
+    <div id="tab-vouchers">
+      <div class="voucher-form">
+        <h3>Add / Edit Voucher</h3>
+        <input type="hidden" id="edit-id">
+        <input type="number" id="price" placeholder="Price in ₱">
+        <input type="text" id="duration" placeholder="Duration (e.g. 4 HOURS)">
+        <input type="text" id="feature" placeholder="Feature (e.g. FAST & STABLE)">
+        <button onclick="saveVoucher()" style="background:var(--primary); color:white; padding:12px 28px; border:none; border-radius:50px; margin-top:10px;">Save Voucher</button>
+        <button onclick="clearForm()" style="background:#95a5a6; color:white; padding:12px 20px; border:none; border-radius:50px;">Clear</button>
+      </div>
+
+      <h3>Existing Vouchers</h3>
+      <div id="admin-voucher-list" class="voucher-list"></div>
+    </div>
+
+    <!-- Video Tab -->
+    <div id="tab-video" style="display:none;">
+      <div class="voucher-form">
+        <h3>Promo Video URL</h3>
+        <p class="video-input-hint">Paste a YouTube URL (supports: watch?v=, youtu.be/, shorts/, embed/)</p>
+        <input type="text" id="video-url" placeholder="https://youtube.com/shorts/SBKH1nZlq5A">
+        <button onclick="saveVideo()" style="background:#27ae60; color:white; padding:12px 28px; border:none; border-radius:50px; margin-top:10px;">Save Video</button>
+        <div class="video-preview-container" id="admin-video-preview">
+          <div class="empty-state">No video saved yet</div>
+        </div>
+        <div style="margin-top: 0.75rem; font-size: 0.8rem; color: #64748b;">
+          <i class="fas fa-info-circle"></i> 
+          <span id="embed-status">Ready to save</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const PIN = "833981";
+    let vouchers = JSON.parse(localStorage.getItem('wifiVouchers')) || [
+      { id: 1, price: 10.00, duration: "4 HOURS", feature: "FAST & STABLE" },
+      { id: 2, price: 15.00, duration: "12 HOURS", feature: "SECURE CONNECTION" },
+      { id: 3, price: 20.00, duration: "1 DAY", feature: "PERFECT FOR ALL" },
+      { id: 4, price: 50.00, duration: "4 DAYS", feature: "EXTRA VALUE" },
+      { id: 5, price: 100.00, duration: "10 DAYS", feature: "BEST DEAL" }
+    ];
+    let videoUrl = localStorage.getItem('promoVideoUrl') || "";
+
+    // ---------- helpers ----------
+    function getYoutubeEmbedUrl(url) {
+      if (!url || !url.trim()) return null;
+      const cleanUrl = url.trim();
+      let videoId = null;
+      
+      // Try multiple patterns
+      const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+        /youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/,
+        /youtu\.be\/([a-zA-Z0-9_-]{11})/
+      ];
+      
+      for (const pattern of patterns) {
+        const match = cleanUrl.match(pattern);
+        if (match) {
+          videoId = match[1];
+          break;
+        }
+      }
+      
+      if (!videoId) return null;
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+
+    function isLocalFile() {
+      return window.location.protocol === 'file:';
+    }
+
+    // ---------- render public video ----------
+    function renderPublicVideo() {
+      const wrapper = document.getElementById('public-video-wrapper');
+      const embedUrl = getYoutubeEmbedUrl(videoUrl);
+      
+      wrapper.innerHTML = '';
+      
+      if (embedUrl) {
+        // Check if we're in a local file - if so, show a notice
+        if (isLocalFile()) {
+          const div = document.createElement('div');
+          div.className = 'video-placeholder video-error';
+          div.innerHTML = `
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>YouTube embed not available locally</span>
+            <span class="sub-text">Please open this page on a web server<br>or click the link below to watch</span>
+            <a href="${videoUrl}" target="_blank" style="color: #60a5fa; margin-top: 0.5rem; text-decoration: underline;">
+              <i class="fas fa-external-link-alt"></i> Watch on YouTube
+            </a>
+          `;
+          wrapper.appendChild(div);
+        } else {
+          // Normal iframe embed
+          const iframe = document.createElement('iframe');
+          iframe.src = embedUrl;
+          iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+          iframe.allowFullscreen = true;
+          iframe.title = "Promo Video";
+          iframe.loading = "lazy";
+          wrapper.appendChild(iframe);
+        }
+      } else {
+        // Placeholder
+        const div = document.createElement('div');
+        div.className = 'video-placeholder';
+        div.innerHTML = `
+          <i class="fas fa-video"></i>
+          <span>No promo video set</span>
+          <span class="sub-text">Add a YouTube URL in the admin panel</span>
+        `;
+        wrapper.appendChild(div);
+      }
+    }
+
+    function renderAdminVideoPreview() {
+      const container = document.getElementById('admin-video-preview');
+      const embedUrl = getYoutubeEmbedUrl(videoUrl);
+      const statusEl = document.getElementById('embed-status');
+      
+      if (embedUrl) {
+        container.innerHTML = `
+          <iframe src="${embedUrl}" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen
+                  loading="lazy">
+          </iframe>
+        `;
+        statusEl.innerHTML = `<i class="fas fa-check-circle" style="color: #27ae60;"></i> Valid YouTube URL`;
+        statusEl.style.color = '#27ae60';
+      } else if (videoUrl && videoUrl.trim()) {
+        container.innerHTML = `<div class="empty-state" style="color: #dc2626;">
+          <i class="fas fa-exclamation-circle"></i><br>
+          Invalid YouTube URL. Please check the format.
+        </div>`;
+        statusEl.innerHTML = `<i class="fas fa-exclamation-circle" style="color: #dc2626;"></i> Invalid URL format`;
+        statusEl.style.color = '#dc2626';
+      } else {
+        container.innerHTML = `<div class="empty-state">No video saved yet</div>`;
+        statusEl.innerHTML = `<i class="fas fa-info-circle"></i> Ready to save`;
+        statusEl.style.color = '#64748b';
+      }
+      
+      // Set input value
+      document.getElementById('video-url').value = videoUrl;
+    }
+
+    // ---------- render vouchers ----------
+    function renderPublicVouchers() {
+      const grid = document.getElementById('public-grid');
+      grid.innerHTML = vouchers.map(v => `
+        <div class="voucher-item">
+          <div class="price">${v.price}<small>₱</small></div>
+          <div class="duration"><i class="far fa-clock"></i> ${v.duration}</div>
+          <div class="feature"><i class="fas fa-bolt"></i> ${v.feature}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderAdminVouchers() {
+      const container = document.getElementById('admin-voucher-list');
+      container.innerHTML = vouchers.map((v, i) => `
+        <div class="admin-voucher-item">
+          <strong>₱${v.price}</strong> — ${v.duration}<br>
+          <small>${v.feature}</small>
+          <div style="margin-top:12px;">
+            <button onclick="editVoucher(${i})" style="background:#f39c12;color:white;border:none;padding:6px 14px;border-radius:6px;">Edit</button>
+            <button onclick="deleteVoucher(${i})" style="background:#e74c3c;color:white;border:none;padding:6px 14px;border-radius:6px;">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ---------- voucher CRUD ----------
+    function saveVoucher() {
+      const price = parseInt(document.getElementById('price').value);
+      const duration = document.getElementById('duration').value.trim();
+      const feature = document.getElementById('feature').value.trim();
+      const editId = document.getElementById('edit-id').value;
+
+      if (!price || !duration || !feature) return alert("Please fill all fields");
+
+      if (editId) {
+        const v = vouchers.find(x => x.id == editId);
+        if (v) { v.price = price; v.duration = duration; v.feature = feature; }
+      } else {
+        vouchers.push({ id: Date.now(), price, duration, feature });
+      }
+
+      localStorage.setItem('wifiVouchers', JSON.stringify(vouchers));
+      renderPublicVouchers();
+      renderAdminVouchers();
+      clearForm();
+      alert("✅ Voucher saved successfully!");
+    }
+
+    function editVoucher(i) {
+      const v = vouchers[i];
+      document.getElementById('edit-id').value = v.id;
+      document.getElementById('price').value = v.price;
+      document.getElementById('duration').value = v.duration;
+      document.getElementById('feature').value = v.feature;
+    }
+
+    function deleteVoucher(i) {
+      if (confirm("Delete this voucher?")) {
+        vouchers.splice(i, 1);
+        localStorage.setItem('wifiVouchers', JSON.stringify(vouchers));
+        renderPublicVouchers();
+        renderAdminVouchers();
+      }
+    }
+
+    function clearForm() {
+      document.getElementById('edit-id').value = '';
+      document.getElementById('price').value = '';
+      document.getElementById('duration').value = '';
+      document.getElementById('feature').value = '';
+    }
+
+    // ---------- video ----------
+    function saveVideo() {
+      const raw = document.getElementById('video-url').value.trim();
+      videoUrl = raw;
+      localStorage.setItem('promoVideoUrl', videoUrl);
+      renderPublicVideo();
+      renderAdminVideoPreview();
+      
+      if (raw && getYoutubeEmbedUrl(raw)) {
+        alert("✅ Video URL saved successfully!");
+      } else if (raw) {
+        alert("⚠️ URL saved but it doesn't appear to be a valid YouTube URL. Please check the format.");
+      } else {
+        alert("✅ Video cleared successfully!");
+      }
+    }
+
+    // ---------- admin login ----------
+    function showAdminLogin() {
+      document.getElementById('login-modal').style.display = 'flex';
+      document.getElementById('pin-input').focus();
+    }
+
+    function hideLogin() {
+      document.getElementById('login-modal').style.display = 'none';
+      document.getElementById('pin-input').value = '';
+    }
+
+    function verifyPin() {
+      if (document.getElementById('pin-input').value === PIN) {
+        hideLogin();
+        document.getElementById('public-page').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        renderAdminVouchers();
+        renderAdminVideoPreview();
+      } else {
+        alert("❌ Incorrect PIN");
+        document.getElementById('pin-input').value = '';
+      }
+    }
+
+    function logout() {
+      if (confirm("Logout?")) {
+        document.getElementById('admin-panel').style.display = 'none';
+        document.getElementById('public-page').style.display = 'block';
+      }
+    }
+
+    // ---------- tabs ----------
+    function switchTab(n) {
+      document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === n));
+      document.getElementById('tab-vouchers').style.display = n === 0 ? 'block' : 'none';
+      document.getElementById('tab-video').style.display = n === 1 ? 'block' : 'none';
+      if (n === 1) renderAdminVideoPreview();
+    }
+
+    // ---------- init ----------
+    renderPublicVouchers();
+    renderPublicVideo();
+
+    // If local file, show a console message
+    if (isLocalFile()) {
+      console.log('📢 Running from local file. YouTube embeds will show a link instead.');
+    }
+	
+	const images = [
+    "images/Voucher-promo.png",
+    "images/Voucher-Movie-pass.png",
+    "images/Voucher-movies-02.jpg",
+	"images/movies.png",
+    "images/movies-01.png"
+];
+
+let current = 0;
+
+const popup = document.getElementById("imagePopup");
+const img = document.getElementById("popupImage");
+
+document.getElementById("promoBtn").onclick = function(e){
+    e.preventDefault();
+    current = 0;
+    img.src = images[current];
+    popup.style.display = "flex";
+};
+
+function showImage(index){
+    img.style.animation = "none";
+    void img.offsetWidth; // restart animation
+
+    img.src = images[index];
+    img.style.animation = "slideIn .3s ease";
+}
+
+document.querySelector(".next").onclick = () => {
+    current = (current + 1) % images.length;
+    showImage(current);
+};
+
+document.querySelector(".prev").onclick = () => {
+    current = (current - 1 + images.length) % images.length;
+    showImage(current);
+};
+
+document.querySelector(".close").onclick = () => {
+    popup.style.display = "none";
+};
+
+popup.onclick = (e)=>{
+    if(e.target===popup){
+        popup.style.display="none";
+    }
+};
+
+// Swipe support for mobile
+let startX = 0;
+
+popup.addEventListener("touchstart",e=>{
+    startX = e.touches[0].clientX;
+});
+
+popup.addEventListener("touchend",e=>{
+    let endX = e.changedTouches[0].clientX;
+
+    if(startX - endX > 50){
+        current = (current + 1) % images.length;
+        showImage(current);
+    }
+
+    if(endX - startX > 50){
+        current = (current - 1 + images.length) % images.length;
+        showImage(current);
+    }
+});
+  </script>
+</body>
+</html>
